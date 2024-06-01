@@ -4,6 +4,7 @@
 typedef char* K;
 typedef char* V;
 
+//拉链法的哈希桶是链表，链表结点定义如下：
 typedef struct node {
 	K key;
 	V val;
