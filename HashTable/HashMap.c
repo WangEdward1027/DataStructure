@@ -6,6 +6,7 @@
 #define DEFAULT_CAPACITY 8
 #define LOAD_FACTOR 0.75
 
+//1.创建
 HashMap* hashmap_create(void) {
 	HashMap* map = malloc(sizeof(HashMap));
 
@@ -17,6 +18,7 @@ HashMap* hashmap_create(void) {
 	return map;
 }
 
+//2.销毁
 void hashmap_destroy(HashMap* map) {
 	//1.释放所有的结点(遍历哈希表)
 	for (int i = 0; i < map->capacity; i++) {
@@ -34,9 +36,7 @@ void hashmap_destroy(HashMap* map) {
 }
 
 /* murmurhash2 */
-// key: 关键字的地址
-// len: 关键字的字节长度
-// seed: 哈希种子，避免攻击
+// key: 关键字的地址，len: 关键字的字节长度，seed: 哈希种子，避免攻击
 static uint32_t hash(const void* key, int len, uint32_t seed) {
 	const uint32_t m = 0x5bd1e995;
 	const int r = 24;
@@ -65,6 +65,7 @@ static uint32_t hash(const void* key, int len, uint32_t seed) {
 	return h;
 }
 
+//6.扩容
 void grow_capacity(HashMap* map) {
 	int new_capacity = 2 * map->capacity;
 
@@ -99,8 +100,9 @@ void grow_capacity(HashMap* map) {
 	return;
 }
 
-// 如果key不存在：则添加(key, val)。如果key存在，更新key关联的值，并返回原来关联的值。
-//put：返回旧值,若是新结点则返回NULL
+//3.添加 put：返回旧值,若是新结点则返回NULL
+//(1)如果key不存在，则添加(key, val), 返回NULL
+//(2)如果key存在，更新key关联的值，并返回原来关联的值。
 V hashmap_put(HashMap* map, K key, V val) {
 	//对key进行哈希，判断key在哪个哈希桶中(哪一条链表中)
 	int idx = hash(key, strlen(key), map->hashseed) % map->capacity;
@@ -135,21 +137,22 @@ V hashmap_put(HashMap* map, K key, V val) {
 	return NULL;
 }
 
+//4.查找
 V hashmap_get(HashMap* map, K key) {
 	//对key进行哈希，判断key在哪个哈希桶中
 	int idx = hash(key, strlen(key), map->hashseed) % map->capacity;
 	//遍历链表
 	Node* curr = map->table[idx];
-	while (curr) {
+	while (curr != NULL) {
 		if (strcmp(curr->key, key) == 0) {
 			return curr->val;
 		}
 		curr = curr->next;
-	} //curr == NULL
+	}
 	return NULL;
 }
 
-//删除键值对，如果key不存在，则什么也不做
+//5.删除：删除键值对，如果key不存在，则什么也不做
 void hashmap_delete(HashMap* map, K key) {
 	//对key进行哈希，判断key在哪个哈希桶中
 	int idx = hash(key, strlen(key), map->hashseed) % map->capacity;
