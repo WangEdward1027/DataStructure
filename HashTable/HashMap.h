@@ -1,6 +1,6 @@
-#include <stdint.h>
-
 // HashMap.h
+#include <stdint.h>	//别名unit32_t的头文件 
+
 typedef char* K;
 typedef char* V;
 
