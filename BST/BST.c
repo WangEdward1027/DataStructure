@@ -106,61 +106,84 @@ TreeNode* bst_search(BST* tree, K key) {
 	return NULL;				 //未找到目标，返回空指针
 }
 
+//BST的删除
 void bst_delete(BST* tree, K key) {
-	// 1. 找到删除的节点
 	TreeNode* parent = NULL;
 	TreeNode* curr = tree->root;
+	// 1. curr从根结点开始遍历，找到要删除的结点
 	while (curr) {
 		int cmp = key - curr->key;
 		if (cmp < 0) {
 			parent = curr;
 			curr = curr->left;
-		}
-		else if (cmp > 0) {
+		}else if (cmp > 0) {
 			parent = curr;
 			curr = curr->right;
-		}
-		else {
+		}else {
 			break;
 		}
-	} // curr == NULL || curr != NULL
-	if (curr == NULL) return;
-	// 2. 删除 curr 节点
-	if (curr->left && curr->right) {
-		// 退化成度为0或者度为1的情况
-		TreeNode* minp = curr;
-		TreeNode* min = curr->right;
-		while (min->left) {
-			minp = min;
-			min = min->left;
-		}
-		// 退化
-		curr->key = min->key;
-		curr = min;
-		parent = minp;
+	} // while结束，要么找到了要删除结点所在位置，要么没有找到要删除结点
+	
+	// 没有找到要删除的结点
+	if (curr == NULL) {
+		return;
 	}
 
-	// 找到唯一的孩子
+	// 2. 删除 curr 结点：
+	// 2.1：度为2，用(前驱)后继结点代替，转化为度为0或度为1的情况
+	if (curr->left && curr->right) {
+		TreeNode* right_min_node_parent = curr;
+		TreeNode* right_min_node = curr->right;
+		
+		//curr的后继结点为右子树的最左下结点
+		while (right_min_node->left) {
+			right_min_node_parent = right_min_node;
+			right_min_node = right_min_node->left;
+		}
+		
+		// 删除curr转化为删除curr的后继结点(度只能为0或为1)，后续统一处理
+		curr->key = right_min_node->key;
+		curr = right_min_node;
+		parent = right_min_node_parent;
+	}
+
+	// 找到唯一的孩子：若度为1，则指向它的孩子；若度为0，指向NULL
 	TreeNode* child = curr->left ? curr->left : curr->right;
 
-	if (parent == NULL) {
+	// 删除的结点前没有任何结点，即删除的是根节点
+	if (parent == NULL) { 
 		tree->root = child;
 	}
-	else {
-		// 将child链接到parent的正确位置
-		int cmp = curr->key - parent->key;	// Caution: 得重新比较
-		if (cmp < 0) {
-			parent->left = child;
-		}
-		else if (cmp > 0) {
-			parent->right = child;
-		}
-		else {
-			// Caution: 可能cmp == 0
-			parent->right = child;
-		}
+	// 被删除结点的父节点指向被删除结点唯一的孩子
+	else if (parent->left == curr) {
+		parent->left = child;
 	}
+	else { // parent可能=curr，右子树最小结点是右子树的根节点的情况
+		parent->right = child;
+	}
+
+	////要删除的是根结点
+	//if (parent == NULL) {	
+	//	tree->root = child; //唯一的孩子作为新的根结点
+	//}
+	////被删除结点的父节点指向被删除结点唯一的孩子
+	//else {	
+	//	// 将child链接到parent的正确位置
+	//	int cmp = curr->key - parent->key;	// Caution: 得重新比较
+	//	if (cmp < 0) {
+	//		parent->left = child;
+	//	}
+	//	else if (cmp > 0) {
+	//		parent->right = child;
+	//	}
+	//	else {
+	//		// Caution: 可能cmp == 0
+	//		parent->right = child;
+	//	}
+	//}
+
 	free(curr);
+	return;
 }
 
 // 深度优先遍历
