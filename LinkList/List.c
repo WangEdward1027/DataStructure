@@ -2,98 +2,92 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// API
+//API
 List* list_create(void) {
 	return calloc(1, sizeof(List));
 }
 
 void list_destroy(List* list) {
-	// 1. 释放所有结点
-	Node* curr = list->head;
-	while (curr) {
-		Node* next = curr->next;
-		free(curr);
-		curr = next;
-	} // curr == NULL
-	// 2. 释放List结构体
+	Node* cur = list->head;
+	while (cur != NULL) {
+		Node* next = cur->next;
+		free(cur);
+	}
 	free(list);
 }
 
-// 头插法
+//头插法
 void add_before_head(List* list, E val) {
-	// 1. 创建新结点
+	//1.创建新结点
 	Node* new_node = malloc(sizeof(Node));
-	if (!new_node) {
+	if (new_node == NULL) {
 		printf("Error: malloc failed in add_before_head\n");
 		exit(1);
 	}
-	// 2. 初始化结点
+	//2.初始化结点
 	new_node->data = val;
 	new_node->next = list->head;
-	// 3. 更新链表的信息
-	list->head = new_node;
+	//3.更新链表的信息
+	list->head = new_node;	   //更新链表的头指针
 	if (list->tail == NULL) {
 		list->tail = new_node;
 	}
 	list->size++;
 }
 
-// 尾插法
-void add_hehind_tail(List* list, E val) {
-	// 1. 创建新结点
+//尾插法
+void add_behind_tail(List* list, E val) {
+	//1.创建新结点
 	Node* new_node = malloc(sizeof(Node));
-	if (!new_node) {
-		printf("Error: malloc failed in add_before_head\n");
+	if (new_node == NULL) {
+		printf("Error: malloc failed in add_behind_tail\n");
 		exit(1);
 	}
-	// 2. 初始化结点
+	//2.初始化结点
 	new_node->data = val;
 	new_node->next = NULL;
-	// 3. 链接并修改更新链表的信息
+	//3.链接并更新链表信息
 	if (list->tail == NULL) {
 		list->head = new_node;
 		list->tail = new_node;
-	} else {
+	}else{
 		list->tail->next = new_node;
 		list->tail = new_node;
 	}
 	list->size++;
 }
 
+//任意位置插入结点
 void add_node(List* list, int idx, E val) {
-	// 参数校验
+	//位置参数检查
 	if (idx < 0 || idx > list->size) {
 		printf("Illegal Argument: idx = %d, size = %d\n", idx, list->size);
 		exit(1);
 	}
-	if (idx == 0) {
+	//头插
+	if (idx == 0) { 
 		add_before_head(list, val);
 		return;
 	}
-	if (idx == list->size) {
-		add_hehind_tail(list, val);
+	//尾插
+	if (idx == list->size) { 
+		add_behind_tail(list,val);
 		return;
 	}
-	// 在链表的中间插入
-	// 找索引为 idx-1 的结点
-	// 循环不变式：curr和i是对应的
+	//链表中间插入
 	Node* curr = list->head;
 	for (int i = 0; i < idx - 1; i++) {
 		curr = curr->next;
-	} 
-	// 在curr的后面添加结点
-	// 1. 创建新结点
+	}
+	//在curr的后面添加结点
 	Node* new_node = malloc(sizeof(Node));
-	if (!new_node) {
-		printf("Error: malloc failed in add_before_head\n");
+	if (new_node == NULL) {
+		printf("Error: malloc failed in add_behind_tail\n");
 		exit(1);
 	}
-	// 2. 初始化结点
 	new_node->data = val;
 	new_node->next = curr->next;
-	// 3. 链接
 	curr->next = new_node;
-	// 4. 修改链表的信息
 	list->size++;
 }
 
@@ -101,7 +95,7 @@ void add_node(List* list, int idx, E val) {
 void delete_node(List* list, E val) {
 	Node* prev = NULL;
 	Node* curr = list->head;
-	
+
 	// 找到第一个值与val相等的结点
 	while (curr) {
 		if (curr->data == val) {
@@ -112,7 +106,8 @@ void delete_node(List* list, E val) {
 				if (list->tail == curr) {
 					list->tail = NULL;
 				}
-			} else {
+			}
+			else {
 				prev->next = curr->next;
 				if (list->tail == curr) {
 					list->tail = prev;
